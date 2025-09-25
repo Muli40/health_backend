@@ -11,24 +11,18 @@ if ($conn->connect_error) {
     die(json_encode(["status" => "error", "message" => "Connection failed: " . $conn->connect_error]));
 }
 
-if (!empty($data['dep_name']) && !empty($data['dep_desc'])) {
-    $dep_name = "good";
-    $dep_desc = "nice";
+$dep_name = $data['dep_name'] ?? '';
+$dep_desc = $data['dep_desc'] ?? '';
 
-    // IMPORTANT: Make sure your table column names match here
-    $stmt = $conn->prepare("INSERT INTO Departments (Department_Name, Description) VALUES (?, ?)");
-    $stmt->bind_param("ss", $dep_name, $dep_desc);
 
-    if ($stmt->execute()) {
-        echo json_encode(["status" => "success", "message" => "Department created successfully"]);
-    } else {
-        echo json_encode(["status" => "error", "message" => "Error: " . $stmt->error]);
-    }
+$sql = "INSERT INTO departments (department_Name, dept_desc) VALUES (?, ?)";
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("ss", $dep_name, $dep_desc);
+$stmt->execute();
 
-    $stmt->close();
+if ($stmt->affected_rows > 0) {
+    echo json_encode(["status" => "success", "message" => "Department created successfully"]);
 } else {
-    echo json_encode(["status" => "error", "message" => "Invalid input"]);
+    echo json_encode(["status" => "error", "message" => "Failed to create department"]);
 }
-
-$conn->close();
 ?>
