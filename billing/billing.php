@@ -15,14 +15,14 @@ if ($conn->connect_error) {
     ]));
 }
 
-//collect input data
-$patient_id = $data['patient_id'] ?? '';
-$amount = $data['amount'] ?? '';
-$payment_status= $data['payment_status'] ?? '';
+// Collect input data
+$patient_id     = $data['patient_id'] ?? '';
+$amount         = $data['amount'] ?? '';
+$payment_status = $data['payment_status'] ?? '';
 $payment_method = $data['payment_method'] ?? '';
-$date = $data['date'] ?? '';
+$date           = $data['date'] ?? '';
 
-//validate input data//
+// Validate input data
 if (empty($patient_id) || empty($amount) || empty($payment_status) || empty($payment_method) || empty($date)) {
     echo json_encode(["status" => "error", "message" => "All fields are required"]);
     exit;
@@ -32,36 +32,23 @@ try {
     mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 
     // Insert data into billing table
-$stmt = $conn->prepare("INSERT INTO Billing (Patient_ID, Amount, Payment_Status, Payment_Method, Date) 
-                        VALUES (?, ?, ?, ?, ?)");
-$stmt->bind_param("idsss", $patient_id, $amount, $payment_status, $payment_method, $date);
-
+    $stmt = $conn->prepare("INSERT INTO Billing (Patient_ID, Amount, Payment_Status, Payment_Method, Date) 
+                            VALUES (?, ?, ?, ?, ?)");
+    $stmt->bind_param("idsss", $patient_id, $amount, $payment_status, $payment_method, $date);
     $stmt->execute();
+
     $billing_id = $conn->insert_id;
     echo json_encode([
         "status" => "success",
         "message" => "Billing record saved",
         "billing_id" => $billing_id
     ]);
-    $stmt->close();
-if ($conn->query($sql) === TRUE) {
-    echo json_encode(["status" => "success", "message" => "Data inserted successfully"]);
-} else {
-    echo json_encode(["status" => "error", "message" => "Error: " . $sql . "<br>" . $conn->error]);
-}
 
-$conn->close();
+    $stmt->close();
+    $conn->close();
+
 } catch (Exception $e) {
     echo json_encode(["status" => "error", "message" => $e->getMessage()]);
+    $conn->close();
 }
-$conn->close();
 ?>
-
-
-
-
-
-
-
-
-
